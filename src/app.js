@@ -61,6 +61,15 @@ app.get("/userByID", async (req, res) => {
   }
 });
 
+app.get("/feed", async (req, res) => {
+  try {
+    const allUsers = await User.find({});
+    res.send(allUsers)
+  } catch (error) {
+    res.status(400).send("Something went wrong")
+  }
+});
+
 connectDB()
   .then(() => {
     console.log("Connected to db");
