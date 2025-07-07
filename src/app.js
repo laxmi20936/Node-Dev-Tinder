@@ -93,6 +93,18 @@ app.patch("/user", async(req, res) =>{
     }
 })
 
+app.patch("/emailID", async(req, res) =>{
+    const email = req.body.email
+    const data = req.body
+    try {
+      const updatedUser = await User.findOneAndUpdate({emailId: email}, data, {returnDocument:"after"})  
+      console.log(updatedUser) //Bydefault prev user
+      res.send("User updated successfully")
+    } catch (error) {
+        res.status(400).send("Something went wrong ");
+    }
+})
+
 connectDB()
   .then(() => {
     console.log("Connected to db");
