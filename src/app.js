@@ -11,6 +11,9 @@ app.post("/signup", async (req, res) => {
   const user = new User(req.body);
 
   try {
+    if (user.skills.length > 10) {
+      throw new Error("Skills cannot be greater than 10");
+    }
     await user.save();
     res.send("User added successfully");
   } catch (err) {
@@ -81,10 +84,21 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-app.patch("/user", async (req, res) => {
-  const id = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  console.log(req.params?.userId);
+  const id = req.params?.userId;
   const data = req.body;
+  const receivedFields = Object.keys(data);
+  //   [gender,skills, emailId]
   try {
+    const fields = ["about", "gender", "age", "skills", "photoUrl"];
+    const allowedFields = receivedFields.every((x) => fields.includes(x));
+    if (!allowedFields) {
+      throw new Error("Update not allowed");
+    }
+    if (data.skills.length > 10) {
+      throw new Error("Skills cannot be greater than 10..");
+    }
     const updatedUser = await User.findByIdAndUpdate(id, data, {
       returnDocument: "after",
       runValidators: true,
@@ -92,7 +106,7 @@ app.patch("/user", async (req, res) => {
     console.log(updatedUser); //Bydefault prev user
     res.send("User updated successfully");
   } catch (error) {
-    res.status(400).send("Something went wrong " + error.message);
+    res.status(400).send("Something went wrong: " + error.message);
   }
 });
 

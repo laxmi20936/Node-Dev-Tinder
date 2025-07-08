@@ -47,11 +47,11 @@ const userSchema = new mongoose.Schema(
     },
     skills: {
       type: [String],
-      validate(value) {
-        if(value.length === 1 ){
-            throw new Error("llll")
-        }
-      },
+    //   validate(value) {
+    //     if(value.length === 1 ){
+    //         throw new Error("llll")
+    //     }
+    //   },
     },
   },
   { timestamps: true }
