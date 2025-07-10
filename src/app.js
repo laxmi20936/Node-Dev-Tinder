@@ -4,6 +4,7 @@ const User = require("./models/user");
 const { validate, validateLogin } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
@@ -54,8 +55,7 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Please enter correct password");
     }
-
-    const token = "1111";
+    const token = jwt.sign({ _id: user.id }, "Dev@Tinder");
     res.cookie("tokenn", token);
     res.send("Login successfully");
   } catch (error) {
@@ -63,12 +63,24 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", (req, res) => {
-  console.log(req.cookies); // need cookie-parser
+app.get("/profile", async (req, res) => {
+  //   console.log(req.cookies); // need cookie-parser
   try {
-    res.send("Profie infoo");
+    const { tokenn } = req.cookies;
+    if (!tokenn) {
+      res.send("Invalid Token");
+    }
+    const decodedData = jwt.verify(tokenn, "Dev@Tinder");
+    // {
+    //   _id: "tyhsgfs";  OR nothing (no check)
+    // }
+    const user = await User.findById(decodedData._id);
+    if (!user) {
+      res.send("User does not exist");
+    }
+    res.send(user);
   } catch (error) {
-    res.status(400).send("Unauthorised user");
+    res.status(400).send(error.message);
   }
 });
 
