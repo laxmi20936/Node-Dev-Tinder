@@ -2,6 +2,7 @@ const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
 const { validate } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 const app = express();
 app.use(express.json());
@@ -13,10 +14,22 @@ app.post("/signup", async (req, res) => {
 
   try {
     validate(req.body);
-    const user = new User(req.body);
-    if (user.skills.length > 10) {
-      throw new Error("Skills cannot be greater than 10");
-    }
+    const { firstName, lastName, password, emailId } = req.body;
+
+    // password encryption while saving in DB
+    // bcrypt.hash(myPlaintextPassword, saltRounds).then(function (hash) {
+    // Store hash in your password DB.
+    // });
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    //   Creating a new instance of the User model
+    const user = new User({
+      firstName,
+      lastName,
+      password: passwordHash,
+      emailId,
+    });
     await user.save();
     res.send("User added successfully");
   } catch (err) {
