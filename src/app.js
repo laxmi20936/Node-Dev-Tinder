@@ -1,11 +1,13 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
-const { validate , validateLogin} = require("./utils/validation");
+const { validate, validateLogin } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   //   console.log(req);
@@ -38,7 +40,7 @@ app.post("/signup", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   try {
-    validateLogin(req.body)
+    validateLogin(req.body);
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId });
     if (!user) {
@@ -52,9 +54,21 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Please enter correct password");
     }
+
+    const token = "1111";
+    res.cookie("tokenn", token);
     res.send("Login successfully");
   } catch (error) {
     res.status(400).send("Error: " + error?.message);
+  }
+});
+
+app.get("/profile", (req, res) => {
+  console.log(req.cookies); // need cookie-parser
+  try {
+    res.send("Profie infoo");
+  } catch (error) {
+    res.status(400).send("Unauthorised user");
   }
 });
 
