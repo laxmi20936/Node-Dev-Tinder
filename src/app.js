@@ -1,6 +1,7 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
+const { validate } = require("./utils/validation");
 
 const app = express();
 app.use(express.json());
@@ -8,9 +9,11 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   //   console.log(req);
   //   Creating a new instance of the User model
-  const user = new User(req.body);
+  //   const user = new User(req.body);
 
   try {
+    validate(req.body);
+    const user = new User(req.body);
     if (user.skills.length > 10) {
       throw new Error("Skills cannot be greater than 10");
     }
