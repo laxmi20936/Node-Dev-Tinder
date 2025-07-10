@@ -1,7 +1,7 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
-const { validate } = require("./utils/validation");
+const { validate , validateLogin} = require("./utils/validation");
 const bcrypt = require("bcrypt");
 
 const app = express();
@@ -21,7 +21,6 @@ app.post("/signup", async (req, res) => {
     // Store hash in your password DB.
     // });
     const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
 
     //   Creating a new instance of the User model
     const user = new User({
@@ -34,6 +33,28 @@ app.post("/signup", async (req, res) => {
     res.send("User added successfully");
   } catch (err) {
     res.status(400).send("Error saving the user:" + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    validateLogin(req.body)
+    const { emailId, password } = req.body;
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      throw new Error("Please sign up");
+    }
+
+    // if user is present check for password ( returns True or False)
+    // await bcrypt.compare(userEnteredPassword, fromDbPassword);
+
+    const isPasswordValid = await bcrypt.compare(password, user?.password);
+    if (!isPasswordValid) {
+      throw new Error("Please enter correct password");
+    }
+    res.send("Login successfully");
+  } catch (error) {
+    res.status(400).send("Error: " + error?.message);
   }
 });
 

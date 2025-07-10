@@ -18,4 +18,13 @@ const validate = (data) => {
   //     Sign up not needs firstName, LastName, email, password
 };
 
-module.exports = { validate };
+const validateLogin = (data) => {
+  const {password, emailId} = data;
+  if (!validator.isStrongPassword(password)) {
+    throw new Error("Use a strong Password");
+  } else if (!validator.isEmail(emailId)) {
+    throw new Error("Email is not valid");
+  }
+};
+
+module.exports = { validate, validateLogin };
